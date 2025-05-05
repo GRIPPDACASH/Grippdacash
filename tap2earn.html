@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tap2Earn</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .tap-balance {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #4caf50;
+    }
+
+    button {
+      padding: 15px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #43a047;
+    }
+
+    .transfer-btn {
+      background-color: #2196f3;
+    }
+
+    .transfer-btn:hover {
+      background-color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Tap2Earn</h2>
+    <div class="tap-balance">
+      <p>Your Tap Balance: <span id="tapBalanceDisplay">₦0.00</span></p>
+    </div>
+
+    <button onclick="earnTap()">Tap to Earn ₦0.10</button>
+
+    <div style="margin-top: 20px;">
+      <button class="transfer-btn" onclick="transferBalance()">Transfer to Wallet Balance</button>
+    </div>
+  </div>
+
+  <script>
+    const tapReward = 0.01;
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    if (!currentUser) {
+      alert("Please log in first.");
+      window.location.href = "index.html";
+    }
+
+    const tapBalanceDisplay = document.getElementById("tapBalanceDisplay");
+
+    function updateDisplay() {
+      tapBalanceDisplay.textContent = `₦${currentUser.tapBalance.toFixed(2)}`;
+    }
+
+    // Earn tap reward and update balance
+    function earnTap() {
+      currentUser.tapBalance = (currentUser.tapBalance || 0) + tapReward;
+      currentUser.history = currentUser.history || [];
+      currentUser.history.push(`Tapped and earned ₦${tapReward.toFixed(2)}`);
+
+      // Update global users array
+      users = users.map(user =>
+        user.username === currentUser.username ? currentUser : user
+      );
+
+      // Save to localStorage
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      localStorage.setItem("users", JSON.stringify(users));
+
+      updateDisplay();
+    }
+
+    // Transfer Tap Balance to Wallet
+    function transferBalance() {
+      if (currentUser.tapBalance <= 0) {
+        alert("Your Tap Balance is 0. You must earn some money first.");
+        return;
+      }
+
+      const transferAmount = currentUser.tapBalance;
+
+      // Ask for confirmation
+      const confirmTransfer = confirm(`Are you sure you want to transfer ₦${transferAmount.toFixed(2)} from Tap Balance to Wallet?`);
+
+      if (confirmTransfer) {
+        currentUser.balance = (currentUser.balance || 0) + transferAmount;  // Add Tap Balance to Wallet
+        currentUser.tapBalance = 0;  // Reset Tap Balance
+
+        // Log the transfer action in history
+        currentUser.history.push(`Transferred ₦${transferAmount.toFixed(2)} from Tap Balance to Wallet Balance`);
+
+        // Update global users array
+        users = users.map(user =>
+          user.username === currentUser.username ? currentUser : user
+        );
+
+        // Save to localStorage
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        localStorage.setItem("users", JSON.stringify(users));
+
+        alert(`₦${transferAmount.toFixed(2)} has been transferred to your Wallet Balance.`);
+        updateDisplay();
+      }
+    }
+
+    updateDisplay();
+    
+    // Function to log activities into localStorage
+function logAction(action) {
+  const logs = JSON.parse(localStorage.getItem('activityLogs')) || [];
+  const time = new Date().toLocaleString(); // Get current date and time
+  logs.unshift(`[${time}] ${action}`); // Prepend new log entry
+  localStorage.setItem('activityLogs', JSON.stringify(logs)); // Save to localStorage
+}
+
+// Call this function when an action happens
+function earn() {
+  let user = JSON.parse(localStorage.getItem("currentUser"));
+
+  user.tapBalance += 1;
+  user.totalEarned += 1;
+
+  localStorage.setItem("currentUser", JSON.stringify(user));
+
+  // Log the action
+  logAction("User tapped to earn ₦1");
+  alert("₦1 added to your Tap Balance!");
+}
+    
+  </script>
+</body>
+</html>

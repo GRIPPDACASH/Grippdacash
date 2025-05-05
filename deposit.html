@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deposit</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .account-info {
+      background-color: #e8f5e9;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #2e7d32;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #43a047;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Deposit Funds</h2>
+    
+    <div class="account-info">
+      <p><strong>Bank Name:</strong> Access Bank</p>
+      <p><strong>Account Number:</strong> 0123456789</p>
+      <p><strong>Account Name:</strong> Cashflow Ventures</p>
+      <p style="font-size: 0.9rem; color: #555;">Send your deposit to the above account and fill the form below.</p>
+    </div>
+
+    <label for="depositAmount">Amount Deposited (₦)</label>
+    <input type="number" id="depositAmount" placeholder="e.g. 1000" min="0.01" step="0.01" />
+
+    <label for="transactionId">Transaction ID or Description</label>
+    <input type="text" id="transactionId" placeholder="e.g. Transfer ID from bank app" />
+
+    <button onclick="submitDeposit()">Submit Deposit</button>
+    <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    if (!currentUser) {
+      alert("Please log in first.");
+      window.location.href = "index.html";
+    }
+
+    function submitDeposit() {
+      const amount = parseFloat(document.getElementById("depositAmount").value);
+      const txId = document.getElementById("transactionId").value.trim();
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Enter a valid deposit amount.");
+        return;
+      }
+
+      if (txId === "") {
+        alert("Enter the transaction ID or reference.");
+        return;
+      }
+
+      const record = `Deposit of ₦${amount.toFixed(2)} submitted with Tx ID: ${txId} (Pending Approval)`;
+
+      currentUser.history = currentUser.history || [];
+      currentUser.history.push(record);
+
+      users = users.map(user =>
+        user.username === currentUser.username ? currentUser : user
+      );
+
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("Deposit submitted successfully! Admin will verify shortly.");
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>

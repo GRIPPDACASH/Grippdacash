@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .balance-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .balance-section div {
+      font-size: 1.2rem;
+      padding: 15px;
+      background: #4caf50;
+      color: #fff;
+      border-radius: 8px;
+      width: 48%;
+      text-align: center;
+    }
+
+    .history-section {
+      margin-top: 30px;
+    }
+
+    .history-section h3 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .history-section ul {
+      list-style-type: none;
+      padding: 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .history-section li {
+      padding: 10px;
+      background-color: #f0f0f0;
+      margin: 5px 0;
+      border-radius: 6px;
+    }
+
+    .menu {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+    }
+
+    .menu button {
+      padding: 15px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 20%;
+      text-align: center;
+    }
+
+    .menu button:hover {
+      background-color: #43a047;
+    }
+
+    .logout-btn {
+      background-color: #f44336;
+      width: 100%;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .logout-btn:hover {
+      background-color: #e53935;
+    }
+
+    /* Mobile responsive design */
+    @media (max-width: 768px) {
+      .menu {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .menu button {
+        width: 80%;
+        margin-bottom: 10px;
+      }
+
+      .balance-section {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .balance-section div {
+        width: 90%;
+        margin-bottom: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+    
+    <!-- Menu Button -->
+<div class="top-menu">
+  <button id="menuBtn">☰ Menu</button>
+  <div id="menuDropdown" class="dropdown-content">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="tap2earn.html">Tap2Earn</a>
+    <a href="ptc.html">PTC Tasks</a>
+    <a href="withdrawal.html">Withdraw</a>
+    <a href="deposit.html">Deposit</a>
+    <a href="logout.html">Logout</a>
+    <a href="shortlink.html">Shortlink</a>
+  </div>
+</div>
+
+<!-- Styles -->
+<style>
+  .top-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #007bff;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 999;
+  }
+
+  #menuBtn {
+    background: #fff;
+    color: #007bff;
+    font-size: 18px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .dropdown-content {
+    display: none;
+    background-color: white;
+    position: absolute;
+    top: 45px;
+    left: 10px;
+    min-width: 150px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .dropdown-content a {
+    color: black;
+    padding: 10px 15px;
+    display: block;
+    text-decoration: none;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+</style>
+
+<!-- Script -->
+<script>
+  const menuBtn = document.getElementById('menuBtn');
+  const menuDropdown = document.getElementById('menuDropdown');
+
+  menuBtn.addEventListener('click', () => {
+    menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Hide menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+      menuDropdown.style.display = 'none';
+    }
+  });
+</script>
+    
+    
+  <div class="container">
+    <h2>Welcome to Your Dashboard</h2>
+    
+    <!-- Display user balance -->
+    <div class="balance-section">
+      <div>
+        <h3>Wallet Balance</h3>
+        <p id="walletBalance">₦0.00</p>
+      </div>
+      <div>
+        <h3>Tap Balance</h3>
+        <p id="tapBalance">₦0.00</p>
+      </div>
+    </div>
+    
+    <!-- Transaction History -->
+    <div class="history-section">
+      <h3>Your Transaction History</h3>
+      <ul id="historyList">
+        <!-- History will populate here -->
+      </ul>
+    </div>
+
+    <!-- Navigation Menu -->
+    
+
+    <!-- Logout button -->
+    <div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!currentUser) {
+      alert("Please log in first.");
+      window.location.href = "index.html";
+    }
+
+    // Display username and wallet balance
+    document.getElementById("walletBalance").textContent = (currentUser.balance || 0).toFixed(2);
+    document.getElementById("tapBalance").textContent = currentUser.tapBalance.toFixed(2);
+
+    // Populate the transaction history
+    const historyList = document.getElementById("historyList");
+    if (currentUser.history && currentUser.history.length > 0) {
+      currentUser.history.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = entry;
+        historyList.appendChild(li);
+      });
+    } else {
+      const li = document.createElement("li");
+      li.textContent = "No transaction history yet.";
+      historyList.appendChild(li);
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem("currentUser");
+      window.location.href = "index.html";
+    }
+  </script>
+  
+  
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <style>
+    /* Basic styles for the dashboard */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .balance-info {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .balance-info h3 {
+      margin: 10px;
+      font-size: 1.2rem;
+    }
+
+    .withdrawal-history {
+      margin-top: 30px;
+    }
+
+    .withdrawal-history table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .withdrawal-history th, .withdrawal-history td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    .status-pending {
+      color: orange;
+    }
+
+    .status-successful {
+      color: green;
+    }
+
+    .status-rejected {
+      color: red;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      background-color: #4caf50;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background-color: #45a049;
+    }
+
+    .back-button {
+      margin-top: 30px;
+      padding: 12px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .back-button:hover {
+      background-color: #e53935;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating WhatsApp Button -->
+<a href="https://wa.me/2347088407766" target="_blank" id="whatsapp-btn">
+  <img src="https://img.icons8.com/color/48/000000/whatsapp.png" alt="WhatsApp Chat" />
+</a>
+
+<style>
+  #whatsapp-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background-color: #25D366;
+    border-radius: 50%;
+    padding: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+  }
+
+  #whatsapp-btn:hover {
+    transform: scale(1.1);
+  }
+
+  #whatsapp-btn img {
+    width: 32px;
+    height: 32px;
+  }
+</style>
+  
+</body>
+</html>

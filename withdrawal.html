@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdraw Funds</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      background: #fff;
+      padding: 20px;
+      margin: 0 auto;
+      max-width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .history {
+      margin-top: 30px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .history h3 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .history-item {
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    .status {
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .pending { color: orange; }
+    .approved { color: green; }
+    .rejected { color: red; }
+  </style>
+</head>
+<body>
+
+  <h2>Withdraw Funds</h2>
+
+  <form id="withdrawForm">
+    <label for="account">Account Number</label>
+    <input type="text" id="account" required />
+
+    <label for="bank">Bank</label>
+    <select id="bank" required>
+      <option value="">Select Bank</option>
+      <option>Opay</option>
+      <option>Access Bank</option>
+      <option>Moniepoint</option>
+      <option>Kuda</option>
+      <option>Zenith</option>
+      <option>Palmpay</option>
+      <option>First Bank</option>
+      <option>Momo</option>
+      <option>SmartCash</option>
+      <option>Suntrust</option>
+      <option>UBA</option>
+    </select>
+
+    <label for="amount">Amount (₦)</label>
+    <input type="number" id="amount" required />
+
+    <button type="submit">Request Withdrawal</button>
+    <p class="error" id="errorMsg"></p>
+  </form>
+
+  <div class="history">
+    <h3>Withdrawal History</h3>
+    <div id="historyList"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('withdrawForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const historyList = document.getElementById('historyList');
+
+    const MIN_WITHDRAWAL = 1000;
+
+    // Load balance from localStorage
+    let balance = parseFloat(localStorage.getItem('userBalance')) || 5000;
+
+    // Load withdrawal history
+    function loadHistory() {
+      const data = JSON.parse(localStorage.getItem('withdrawals')) || [];
+      historyList.innerHTML = '';
+      data.reverse().forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+          <p><strong>₦${item.amount}</strong> to ${item.bank} (${item.account})</p>
+          <p>Status: <span class="status ${item.status}">${item.status}</span></p>
+        `;
+        historyList.appendChild(div);
+      });
+    }
+
+    loadHistory();
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const account = document.getElementById('account').value.trim();
+      const bank = document.getElementById('bank').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (amount < MIN_WITHDRAWAL) {
+        errorMsg.textContent = 'Minimum withdrawal is ₦1,000.';
+        return;
+      }
+
+      if (amount > balance) {
+        errorMsg.textContent = 'Insufficient balance.';
+        return;
+      }
+
+      // Save withdrawal
+      const withdrawal = {
+        account,
+        bank,
+        amount,
+        status: 'pending',
+        date: new Date().toLocaleString()
+      };
+
+      const withdrawals = JSON.parse(localStorage.getItem('withdrawals')) || [];
+      withdrawals.push(withdrawal);
+      localStorage.setItem('withdrawals', JSON.stringify(withdrawals));
+
+      // Deduct from balance
+      balance -= amount;
+      localStorage.setItem('userBalance', balance.toString());
+
+      form.reset();
+      errorMsg.textContent = '';
+      alert('Withdrawal request submitted!');
+      loadHistory();
+    });
+  </script>
+
+</body>
+</html>

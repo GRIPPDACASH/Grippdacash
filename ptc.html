@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTC Tasks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .task-list {
+      margin-bottom: 20px;
+    }
+
+    .task-item {
+      background-color: #f0f0f0;
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 1.1rem;
+    }
+
+    .task-item button {
+      padding: 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .task-item button:hover {
+      background-color: #45a049;
+    }
+
+    .back-button {
+      margin-top: 30px;
+      padding: 12px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .back-button:hover {
+      background-color: #e53935;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>PTC Tasks</h2>
+    
+    <!-- Task List -->
+    <div class="task-list" id="taskList">
+      <!-- Tasks will be populated here -->
+    </div>
+
+    <!-- Back Button -->
+    <button class="back-button" onclick="location.href = 'dashboard.html';">Back to Dashboard</button>
+  </div>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const taskListElement = document.getElementById("taskList");
+
+    if (!currentUser) {
+      alert("Please log in first.");
+      window.location.href = "index.html";
+    }
+
+    // Sample Tasks (This would come from the Admin Dashboard in real-world scenario)
+    const tasks = [
+      { id: 1, description: "Complete survey on XYZ website", reward: 10 },
+      { id: 2, description: "Click and view an ad", reward: 5 },
+      { id: 3, description: "Follow on social media", reward: 15 },
+    ];
+
+    // Function to display tasks
+    function displayTasks() {
+      taskListElement.innerHTML = ""; // Clear existing tasks
+      tasks.forEach(task => {
+        const taskItem = document.createElement("div");
+        taskItem.className = "task-item";
+
+        taskItem.innerHTML = `
+          <p>${task.description}</p>
+          <p>Reward: ₦${task.reward}</p>
+          <button onclick="completeTask(${task.id})">Complete Task</button>
+        `;
+
+        taskListElement.appendChild(taskItem);
+      });
+    }
+
+    // Function to handle task completion
+    function completeTask(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        // Prompt user to upload screenshot for task approval
+        const screenshot = prompt("Please provide the screenshot URL for task completion:");
+        if (screenshot) {
+          alert(`Task completed! Your reward of ₦${task.reward} will be credited after admin approval.`);
+          // In a real scenario, the admin would approve the task and add rewards to the user's account
+        }
+      }
+    }
+
+    // Display the tasks when the page loads
+    displayTasks();
+  </script>
+</body>
+</html>
